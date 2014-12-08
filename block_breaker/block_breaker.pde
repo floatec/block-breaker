@@ -30,6 +30,10 @@ Paddle paddle;
 boolean breakable = false;
 boolean newBrick = false;
 boolean paddleMoveY = false;
+boolean smallerPaddle = true;
+boolean paddleInverse = true;
+boolean paddleDrawInverse = false;
+boolean doublePaddle = true;
 //scoring
 int score=0;
  
@@ -259,9 +263,9 @@ void mouseMoved()
 {
    // move paddle with mouse
    if(paddleMoveY){
-     paddle.moveTo(mouseX,mouseY);
+     paddle.moveTo(paddleInverse?screenWidth-mouseX:mouseX,mouseY);
    }else{
-      paddle.setX(mouseX); 
+      paddle.setX(paddleInverse?screenWidth-mouseX:mouseX); 
    }
 }
  
@@ -464,16 +468,38 @@ class Brick extends Rectangle{
  
 class Paddle extends Rectangle
 {
-   
+  int MAKE_SMALLER=60; 
   // PADDLE PROPERTIES --
   boolean hasStroke = false;
   color strokeColor = #FFFFFF;
   boolean hasFill = true;
   color fillColor = #ffffff;
+  int lastHit = MAKE_SMALLER;
  
   Paddle(int _x, int _y, int _w, int _h)
   {
     super(_x, _y, _w, _h);
+  }
+  boolean intersects(Rectangle other)
+  {
+    boolean res=super.intersects(other);
+    if(doublePaddle){
+      setX(screenWidth-x);
+      res=res|super.intersects(other);
+      setX(screenWidth-x);
+    }
+    if(res){
+      lastHit=0;
+    }
+    return res;
+  }
+   void draw()
+  {
+    rectMode(CORNER);
+    rect(paddleDrawInverse?screenWidth-x:x, y, w, h);
+    if(doublePaddle){
+       rect(screenWidth-x, y, w, h); 
+    }
   }
 }
  
